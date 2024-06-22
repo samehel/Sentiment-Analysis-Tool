@@ -1,7 +1,10 @@
 import tkinter as tk
+import matplotlib.pyplot as plt
+import numpy as np
 
 from tkinter import ttk
 from AnalyzeData import AnalyzeData
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class GUI:
 
@@ -9,6 +12,7 @@ class GUI:
         self.dataset = None
         self.SelectDatasetWindow = None
         self.ErrorPopup = None
+        self.DisplayDataWindow = None
 
         self.root = root
         self.root.title("Sentiment Analysis Tool")
@@ -107,9 +111,52 @@ class GUI:
         AnalyzedData = AnalyzeData(self.dataset)
         AnalyzedData = AnalyzedData.InitAnalysis()
 
+        if self.DisplayDataWindow is not None:
+            self.DisplayDataWindow.destroy()
+
+        DisplayDataWindow = tk.Toplevel(self.root)
+        DisplayDataWindow.title("Sentiment Analysis Tool")
+        DisplayDataWindow.geometry("800x1000")
+        DisplayDataWindow.resizable(False, False)
+
+        self.DisplayDataWindow = DisplayDataWindow
+
+        ttk.Label(DisplayDataWindow, text=f"Testing Accuracy: {AnalyzedData["Training_Accuracy"]* 100:.2f}%", style="Heading.TLabel").pack(pady=10)
+        ttk.Label(DisplayDataWindow, text=f"Evaluation Accuracy: {AnalyzedData["Evaluation_Accuracy"]* 100:.2f}%", style="Heading.TLabel").pack(pady=10)
+
+        ttk.Label(DisplayDataWindow, text="Classification Report", style="Heading.TLabel").pack(pady=10)
+        
+        ClassificationReportText = tk.Text(DisplayDataWindow, height=10, width=60)
+        ClassificationReportText.insert(tk.END, AnalyzedData["Classification_Report"])
+        ClassificationReportText.config(state=tk.DISABLED)
+        ClassificationReportText.pack()
+
+        fig, ax = plt.subplots()
+        cax = ax.matshow(AnalyzedData["Confusion_Matrix"], cmap='Blues')
+        fig.colorbar(cax)
+
+        for (i, j), val in np.ndenumerate(AnalyzedData["Confusion_Matrix"]):
+            ax.text(j, i, f'{val}', ha='center', va='center')
+
+        ax.set_xlabel('Predicted')
+        ax.set_ylabel('Actual')
+        ax.set_xticks(range(len(AnalyzedData["Class_Labels"])))
+        ax.set_yticks(range(len(AnalyzedData["Class_Labels"])))
+        ax.set_xticklabels(AnalyzedData["Class_Labels"])
+        ax.set_yticklabels(AnalyzedData["Class_Labels"])
+        plt.title('Confusion Matrix')
+
+        plt.tight_layout() 
+
+        canvas = FigureCanvasTkAgg(fig, master=DisplayDataWindow)
+        canvas.draw()
+        canvas.get_tk_widget().pack(pady=20)
+        
+        ttk.Button(DisplayDataWindow, text="Close", command=DisplayDataWindow.destroy, style="TButton").pack(pady=10)
 
     def __ExitProgram(self):
         self.root.destroy()
+        exit()
 
 
         
