@@ -1,7 +1,7 @@
 import tkinter as tk
 
-from tkinter import messagebox
 from tkinter import ttk
+from AnalyzeData import AnalyzeData
 
 class GUI:
 
@@ -27,29 +27,29 @@ class GUI:
         self.datasetSelected = ttk.Label(root, text="Selected Dataset: " + str(self.dataset), style="TLabel")
         self.datasetSelected.pack(pady=10)
 
-        self.selectButton = ttk.Button(root, text="Select Dataset", command=self.SelectDataset, style="TButton")
+        self.selectButton = ttk.Button(root, text="Select Dataset", command=self.__SelectDataset, style="TButton")
         self.selectButton.pack(pady=10)
 
-        self.runAnalysis = ttk.Button(root, text="Analyze Data", command=self.AnalyzeData, style="TButton")
+        self.runAnalysis = ttk.Button(root, text="Analyze Data", command=self.__AnalyzeAndDisplayData, style="TButton")
         self.runAnalysis.pack(pady=10)
 
-        self.exitButton = ttk.Button(root, text="Exit", command=self.ExitProgram, style="TButton")
+        self.exitButton = ttk.Button(root, text="Exit", command=self.__ExitProgram, style="TButton")
         self.exitButton.pack(pady=10)
 
-    def SelectDataset(self):
+    def __SelectDataset(self):
         if self.SelectDatasetWindow is not None:
             self.SelectDatasetWindow.destroy()
 
-        options = ["Generic Sentiments", "IMBD Dataset", "Airline Review Tweets", "Upload your own dataset"]
+        options = ["Generic Sentiments", "IMDB Dataset", "Airline Review Tweets"]
         selected = tk.StringVar()
         selected.set(options[0])
 
-        def onSelect():
+        def __onSelect():
             self.dataset = selected.get()
             SelectDatasetWindow.destroy()
-            self.RefreshMainMenu()
+            self.__RefreshMainMenu()
 
-        def onCancel():
+        def __onCancel():
             SelectDatasetWindow.destroy()
 
         SelectDatasetWindow = tk.Toplevel(self.root)
@@ -64,13 +64,13 @@ class GUI:
         for option in options:
             ttk.Radiobutton(SelectDatasetWindow, text=option, variable=selected, value=option).pack(anchor=tk.W)
 
-        ttk.Button(SelectDatasetWindow, text="Confirm Selection", command=onSelect).pack(pady=10)
-        ttk.Button(SelectDatasetWindow, text="Cancel", command=onCancel).pack(pady=10)
+        ttk.Button(SelectDatasetWindow, text="Confirm Selection", command=__onSelect).pack(pady=10)
+        ttk.Button(SelectDatasetWindow, text="Cancel", command=__onCancel).pack(pady=10)
 
         self.root.wait_window(SelectDatasetWindow)
         return getattr(self, 'dataset', None)
     
-    def RefreshMainMenu(self):
+    def __RefreshMainMenu(self):
         for widget in self.root.winfo_children():
             widget.destroy()
         
@@ -80,17 +80,20 @@ class GUI:
         self.datasetSelected = ttk.Label(self.root, text=f"Selected Dataset: {str(self.dataset)}", style="TLabel")
         self.datasetSelected.pack(pady=10)
 
-        self.selectButton = ttk.Button(self.root, text="Select Dataset", command=self.SelectDataset, style="TButton")
+        self.selectButton = ttk.Button(self.root, text="Select Dataset", command=self.__SelectDataset, style="TButton")
         self.selectButton.pack(pady=10)
 
-        self.exitButton = ttk.Button(self.root, text="Exit", command=self.ExitProgram, style="TButton")
+        self.runAnalysis = ttk.Button(self.root, text="Analyze Data", command=self.__AnalyzeAndDisplayData, style="TButton")
+        self.runAnalysis.pack(pady=10)
+
+        self.exitButton = ttk.Button(self.root, text="Exit", command=self.__ExitProgram, style="TButton")
         self.exitButton.pack(pady=10)
 
-    def AnalyzeData(self):
+    def __AnalyzeAndDisplayData(self):
         if self.dataset == None:
             if self.ErrorPopup is not None:
                 self.ErrorPopup.destroy()
-                
+
             ErrorPopup = tk.Toplevel(self.root)
             ErrorPopup.title("Sentiment Analysis Tool")
             ErrorPopup.geometry("290x50")
@@ -99,9 +102,13 @@ class GUI:
             self.ErrorPopup = ErrorPopup
 
             ttk.Label(ErrorPopup, text="Error: Please select a dataset first.", style="Error.TLabel").pack(pady=10)
+            return
+        
+        AnalyzedData = AnalyzeData(self.dataset)
+        AnalyzedData = AnalyzedData.InitAnalysis()
 
 
-    def ExitProgram(self):
+    def __ExitProgram(self):
         self.root.destroy()
 
 
