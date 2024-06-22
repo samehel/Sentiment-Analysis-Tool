@@ -10,7 +10,6 @@ This Python application performs sentiment analysis on different datasets using 
 - [Setup Instructions](#setup-instructions)
 - [Usage](#usage)
 - [File Structure](#file-structure)
-- [License](#license)
 
 ## Introduction
 
