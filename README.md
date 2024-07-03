@@ -40,7 +40,7 @@ This tool uses a Logistic Regression model trained on TF-IDF vectorized text dat
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your/repository.git
+   git clone https://github.com/samehel/Sentiment-Analysis-Tool.git
    cd repository
    ```
 
